@@ -15,13 +15,6 @@ export default class Bananas extends Component {
         this.setState({ hasCameraPermission: status === 'granted' });
     }
 
-    onActionSelected(position) {
-        if (position === 0) { // index of 'Settings'
-            console.log('show settings');
-            // showSettings();
-        }
-    }
-
     action() {
         //code
     }
@@ -40,6 +33,7 @@ export default class Bananas extends Component {
                             <Icon name="menu" size={26} color="white" style={styles.menuButton} />
                         </TouchableOpacity>
                     </ToolbarAndroid>
+
                     <Camera style={{flex: 1}} type={this.state.type}>
                         <View
                             style={{
@@ -62,11 +56,12 @@ export default class Bananas extends Component {
                                 }}>
                                 <Text
                                     style={{fontSize: 18, marginBottom: 10, color: 'white'}}>
-                                    {' '}Flip!{' '}
+                                    {' '}Flip!!{' '}
                                 </Text>
                             </TouchableOpacity>
                         </View>
                     </Camera>
+
                     <BottomNavigation
                         labelColor="white"
                         rippleColor="white"
