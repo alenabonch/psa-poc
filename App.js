@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import { View, Text, TouchableOpacity, AppRegistry, StyleSheet, ToolbarAndroid } from 'react-native';
-import { Camera, Permissions } from 'expo';
+import { View, Text, TouchableOpacity, AppRegistry, StyleSheet, ToolbarAndroid, Vibration } from 'react-native';
+import { Camera, Permissions, FileSystem } from 'expo';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BottomNavigation, { Tab } from 'react-native-material-bottom-navigation'
 
@@ -8,15 +8,46 @@ export default class Bananas extends Component {
     state = {
         hasCameraPermission: null,
         type: Camera.Constants.Type.back,
+        photoId: 1,
+        photos: []
     };
+
+    componentDidMount() {
+        // FileSystem.makeDirectoryAsync(
+        //     FileSystem.documentDirectory + 'photos'
+        // ).catch(e => {
+        //     console.log(e, 'Directory exists');
+        // });
+    }
 
     async componentWillMount() {
         const { status } = await Permissions.askAsync(Permissions.CAMERA);
         this.setState({ hasCameraPermission: status === 'granted' });
     }
 
+    sayHello = function() {
+        console.log('hello!!!');
+    };
+
+    takePicture = async function() {
+        if (this.camera) {
+            this.camera.takePicture().then(data => {
+                FileSystem.moveAsync({
+                    from: data,
+                    to: `${FileSystem.documentDirectory}photos/Photo_${this.state
+                        .photoId}.jpg`,
+                }).then(() => {
+                    this.setState({
+                        photoId: this.state.photoId + 1,
+                    });
+                    Vibration.vibrate();
+                });
+            });
+        }
+    };
+
     action() {
-        //code
+        //code!!!
     }
 
     render() {
@@ -34,30 +65,23 @@ export default class Bananas extends Component {
                         </TouchableOpacity>
                     </ToolbarAndroid>
 
-                    <Camera style={{flex: 1}} type={this.state.type}>
+                    <Camera ref={ref => {
+                                this.camera = ref;
+                            }}
+                            style={{flex: 1}}
+                            type={this.state.type}>
                         <View
                             style={{
-                                flex: 1,
+                                flex: 0.8,
                                 backgroundColor: 'transparent',
                                 flexDirection: 'row'
                             }}>
                             <TouchableOpacity
-                                style={{
-                                    flex: 0.1,
-                                    alignSelf: 'flex-end',
-                                    alignItems: 'center'
-                                }}
-                                onPress={() => {
-                                    this.setState({
-                                        type: this.state.type === Camera.Constants.Type.back
-                                            ? Camera.Constants.Type.front
-                                            : Camera.Constants.Type.back
-                                    });
-                                }}>
-                                <Text
-                                    style={{fontSize: 18, marginBottom: 10, color: 'white'}}>
-                                    {' '}Flip!!{' '}
-                                </Text>
+                                style={[
+                                    { flex: 0.5, alignSelf: 'flex-end' },
+                                ]}
+                                onPress={this.sayHello.bind(this)}>
+                                <Icon size={56} color="black" name="photo-camera" />
                             </TouchableOpacity>
                         </View>
                     </Camera>
