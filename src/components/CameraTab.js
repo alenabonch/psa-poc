@@ -38,7 +38,9 @@ export default class CameraTab extends Component {
                 from: photo.uri,
                 to: newUri
             });
-            console.log(`Photo moved to ${newUri}`);
+            const info = await FileSystem.getInfoAsync(newUri);
+            console.log(`Photo moved to outbox:`);
+            console.log(info);
         } catch (e) {
             console.log(e, 'Error moving photo');
         }
