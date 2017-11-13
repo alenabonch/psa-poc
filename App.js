@@ -13,11 +13,13 @@ export default class Bananas extends Component {
     };
 
     componentDidMount() {
-        // FileSystem.makeDirectoryAsync(
-        //     FileSystem.documentDirectory + 'photos'
-        // ).catch(e => {
-        //     console.log(e, 'Directory exists');
-        // });
+        console.log('did mount');
+        console.log(FileSystem.documentDirectory + 'photos');
+        FileSystem.makeDirectoryAsync(
+            FileSystem.documentDirectory + 'photos'
+        ).catch(e => {
+            console.log(e, 'Directory exists');
+        });
     }
 
     async componentWillMount() {
@@ -25,29 +27,31 @@ export default class Bananas extends Component {
         this.setState({ hasCameraPermission: status === 'granted' });
     }
 
-    sayHello = function() {
-        console.log('hello!!!');
-    };
-
     takePicture = async function() {
         if (this.camera) {
-            this.camera.takePicture().then(data => {
-                FileSystem.moveAsync({
-                    from: data,
+            console.log('camera is present');
+            let data = await this.camera.takePictureAsync();
+            console.log('we got picture!');
+            console.log(data);
+            try {
+                await FileSystem.moveAsync({
+                    from: data.uri,
                     to: `${FileSystem.documentDirectory}photos/Photo_${this.state
                         .photoId}.jpg`,
-                }).then(() => {
-                    this.setState({
-                        photoId: this.state.photoId + 1,
-                    });
-                    Vibration.vibrate();
                 });
-            });
+                this.setState({
+                    photoId: this.state.photoId + 1,
+                });
+                console.log('moved');
+                Vibration.vibrate();
+            } catch(e) {
+                console.log(e, 'error moving picture');
+            }
         }
     };
 
     action() {
-        //code!!!
+        //code
     }
 
     render() {
@@ -68,20 +72,21 @@ export default class Bananas extends Component {
                     <Camera ref={ref => {
                                 this.camera = ref;
                             }}
-                            style={{flex: 1}}
+                            style={{flex: 1, flexDirection: 'row'}}
                             type={this.state.type}>
                         <View
                             style={{
-                                flex: 0.8,
+                                flex: 1,
                                 backgroundColor: 'transparent',
-                                flexDirection: 'row'
+                                flexDirection: 'column',
+                                alignSelf: 'flex-end'
                             }}>
                             <TouchableOpacity
                                 style={[
-                                    { flex: 0.5, alignSelf: 'flex-end' },
+                                    { flex: 0.25, alignSelf: 'center' },
                                 ]}
-                                onPress={this.sayHello.bind(this)}>
-                                <Icon size={56} color="black" name="photo-camera" />
+                                onPress={this.takePicture.bind(this)}>
+                                <Icon size={76} color="white" name="fiber-manual-record" />
                             </TouchableOpacity>
                         </View>
                     </Camera>
