@@ -10,16 +10,16 @@ export default class CameraTab extends Component {
         type: Camera.Constants.Type.back
     };
 
-    async componentWillMount() {
-        const { status } = await Permissions.askAsync(Permissions.CAMERA);
-        this.setState({ hasCameraPermission: status === 'granted' });
-    }
-
     componentDidMount() {
         console.log(this.outboxDirectory, 'trying to make outbox directory');
         FileSystem.makeDirectoryAsync(this.outboxDirectory).catch(e => {
             console.log(e, 'Directory exists');
         });
+    }
+
+    async componentWillMount() {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA);
+        this.setState({ hasCameraPermission: status === 'granted' });
     }
 
     async takePicture() {
