@@ -7,9 +7,7 @@ export default class CameraTab extends Component {
     outboxDirectory = `${FileSystem.documentDirectory}outbox`;
     state = {
         hasCameraPermission: null,
-        type: Camera.Constants.Type.back,
-        photoId: 1,
-        photos: []
+        type: Camera.Constants.Type.back
     };
 
     async componentWillMount() {
@@ -34,13 +32,11 @@ export default class CameraTab extends Component {
     async movePhotoToOutbox(photo) {
         try {
             console.log(photo);
-            const newUri = `${this.outboxDirectory}/Photo_${this.state.photoId}.jpg`;
+            const photoName = `Photo_${new Date().getTime().toString(36)}`;
+            const newUri = `${this.outboxDirectory}/${photoName}`;
             await FileSystem.moveAsync({
                 from: photo.uri,
-                to: newUri,
-            });
-            this.setState({
-                photoId: this.state.photoId + 1,
+                to: newUri
             });
             console.log(`Photo moved to ${newUri}`);
         } catch (e) {
