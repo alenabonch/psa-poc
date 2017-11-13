@@ -4,6 +4,7 @@ import { Camera, Permissions, FileSystem } from 'expo';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default class CameraTab extends Component {
+    outboxDirectory = `${FileSystem.documentDirectory}outbox`;
     state = {
         hasCameraPermission: null,
         type: Camera.Constants.Type.back,
@@ -17,32 +18,33 @@ export default class CameraTab extends Component {
     }
 
     componentDidMount() {
-        console.log(FileSystem.documentDirectory + 'photos', 'trying to make this directory');
-        FileSystem.makeDirectoryAsync(
-            FileSystem.documentDirectory + 'photos'
-        ).catch(e => {
+        console.log(this.outboxDirectory, 'trying to make outbox directory');
+        FileSystem.makeDirectoryAsync(this.outboxDirectory).catch(e => {
             console.log(e, 'Directory exists');
         });
     }
 
-    // take picture and move it to directory!
     async takePicture() {
         if (this.camera) {
-            let photo = await this.camera.takePictureAsync();
+            const photo = await this.camera.takePictureAsync();
+            await this.movePhotoToOutbox(photo);
+        }
+    }
+
+    async movePhotoToOutbox(photo) {
+        try {
             console.log(photo);
-            try {
-                const newUri = `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`;
-                await FileSystem.moveAsync({
-                    from: photo.uri,
-                    to: newUri,
-                });
-                this.setState({
-                    photoId: this.state.photoId + 1,
-                });
-                console.log(`Photo moved to ${newUri}`);
-            } catch(e) {
-                console.log(e, 'Error moving phot');
-            }
+            const newUri = `${this.outboxDirectory}/Photo_${this.state.photoId}.jpg`;
+            await FileSystem.moveAsync({
+                from: photo.uri,
+                to: newUri,
+            });
+            this.setState({
+                photoId: this.state.photoId + 1,
+            });
+            console.log(`Photo moved to ${newUri}`);
+        } catch (e) {
+            console.log(e, 'Error moving photo');
         }
     }
 
