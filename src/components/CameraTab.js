@@ -11,9 +11,13 @@ export default class CameraTab extends Component {
         photos: []
     };
 
+    async componentWillMount() {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA);
+        this.setState({ hasCameraPermission: status === 'granted' });
+    }
+
     componentDidMount() {
-        console.log('did mount');
-        console.log(FileSystem.documentDirectory + 'photos');
+        console.log(FileSystem.documentDirectory + 'photos', 'trying to make this directory');
         FileSystem.makeDirectoryAsync(
             FileSystem.documentDirectory + 'photos'
         ).catch(e => {
@@ -21,33 +25,26 @@ export default class CameraTab extends Component {
         });
     }
 
-    async componentWillMount() {
-        const { status } = await Permissions.askAsync(Permissions.CAMERA);
-        this.setState({ hasCameraPermission: status === 'granted' });
-    }
-
-    // take picture and move it to directory
-    takePicture = async function() {
+    // take picture and move it to directory!
+    async takePicture() {
         if (this.camera) {
-            console.log('camera is present');
-            let data = await this.camera.takePictureAsync();
-            console.log('we got picture!');
-            console.log(data);
+            let photo = await this.camera.takePictureAsync();
+            console.log(photo);
             try {
                 const newUri = `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`;
                 await FileSystem.moveAsync({
-                    from: data.uri,
+                    from: photo.uri,
                     to: newUri,
                 });
                 this.setState({
                     photoId: this.state.photoId + 1,
                 });
-                console.log('moved');
+                console.log(`Photo moved to ${newUri}`);
             } catch(e) {
-                console.log(e, 'error moving picture');
+                console.log(e, 'Error moving phot');
             }
         }
-    };
+    }
 
     render() {
         const {hasCameraPermission} = this.state;
