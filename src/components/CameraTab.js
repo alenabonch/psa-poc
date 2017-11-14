@@ -29,6 +29,30 @@ export default class CameraTab extends Component {
         }
     }
 
+    async uploadImageAsync(uri, name) {
+        let apiUrl = 'http://psa-lb-672808281.us-east-1.elb.amazonaws.com/upload';
+
+        let uriParts = uri.split('.');
+        let fileType = uriParts[uriParts.length - 1];
+
+        let formData = new FormData();
+        formData.append('photo', {
+            uri,
+            name: name,
+            type: `image/${fileType}`,
+        });
+
+        let options = {
+            method: 'POST',
+            body: formData,
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'multipart/form-data',
+            },
+        };
+        return fetch(apiUrl, options);
+    }
+
     async movePhotoToOutbox(photo) {
         try {
             console.log(photo);
@@ -39,6 +63,7 @@ export default class CameraTab extends Component {
                 to: newUri
             });
             const info = await FileSystem.getInfoAsync(newUri);
+            // await this.uploadImageAsync(newUri, photoName);
             console.log(`Photo moved to outbox:`);
             console.log(info);
         } catch (e) {
@@ -46,6 +71,7 @@ export default class CameraTab extends Component {
         }
     }
 
+    //
     render() {
         const {hasCameraPermission} = this.state;
         if (hasCameraPermission === null) {
@@ -72,7 +98,7 @@ export default class CameraTab extends Component {
                                     { flex: 0.25, alignSelf: 'center' },
                                 ]}
                                 onPress={this.takePicture.bind(this)}>
-                                <Icon size={76} color="white" name="fiber-manual-record" />
+                                <Icon size={86} color="white" name="fiber-manual-record" />
                             </TouchableOpacity>
                         </View>
                     </Camera>
